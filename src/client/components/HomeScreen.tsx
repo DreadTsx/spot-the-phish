@@ -6,9 +6,10 @@ import type { Tab } from '../shared/types';
 
 type HomeScreenProps = {
   onNavigate: (tab: Tab) => void;
+  onAnalyze: () => void;
 };
 
-export default function HomeScreen({ onNavigate }: HomeScreenProps) {
+export default function HomeScreen({ onNavigate, onAnalyze }: HomeScreenProps) {
   const { data, isLoading } = useStreak();
 
   return (
@@ -37,8 +38,7 @@ export default function HomeScreen({ onNavigate }: HomeScreenProps) {
         <PrimaryButton
           label="Analyze Today's Message"
           variant="danger"
-          //! Would use this to redirect to the gameplay
-          onclick={() => {}}
+          onclick={() => onAnalyze()}
         />
       </div>
 

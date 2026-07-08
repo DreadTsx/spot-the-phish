@@ -7,7 +7,7 @@ type GameplayScreenProps = {
   onExit: () => void;
 };
 
-export function GameplayScreen({ onExit }: GameplayScreenProps) {
+export default function GameplayScreen({ onExit }: GameplayScreenProps) {
   const {
     scenario,
     secondsRemaining,
