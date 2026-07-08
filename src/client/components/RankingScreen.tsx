@@ -1,8 +1,13 @@
 import AppLayout from './AppLayout';
+import type { Tab } from '../shared/types';
 
-export default function RankingScreen() {
+type RankingScreenProps = {
+  onNavigate: (tab: Tab) => void;
+};
+
+export default function RankingScreen({ onNavigate }: RankingScreenProps) {
   return (
-    <AppLayout activeTab="ranking">
+    <AppLayout activeTab="ranking" onNavigate={onNavigate}>
       <div className="text-label-sm font-mono text-muted uppercase">
         Leaderboard
       </div>

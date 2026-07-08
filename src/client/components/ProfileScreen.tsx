@@ -1,8 +1,13 @@
 import AppLayout from './AppLayout';
+import type { Tab } from '../shared/types';
 
-export default function ProfileScreen() {
+type ProfileScreenProps = {
+  onNavigate: (tab: Tab) => void;
+};
+
+export default function ProfileScreen({ onNavigate }: ProfileScreenProps) {
   return (
-    <AppLayout activeTab="profile">
+    <AppLayout activeTab="profile" onNavigate={onNavigate}>
       <div className="text-label-sm font-mono text-muted uppercase">
         User Profile
       </div>

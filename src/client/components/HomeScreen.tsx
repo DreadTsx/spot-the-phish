@@ -2,12 +2,17 @@ import StreakCard from './StreakCard';
 import PrimaryButton from './PrimaryButton';
 import AppLayout from './AppLayout';
 import { useStreak } from '../hooks/useStreak';
+import type { Tab } from '../shared/types';
 
-export default function HomeScreen() {
+type HomeScreenProps = {
+  onNavigate: (tab: Tab) => void;
+};
+
+export default function HomeScreen({ onNavigate }: HomeScreenProps) {
   const { data, isLoading } = useStreak();
 
   return (
-    <AppLayout activeTab="analyze">
+    <AppLayout activeTab="analyze" onNavigate={onNavigate}>
       {isLoading || !data ? (
         <div className="text-label-sm font-mono text-muted uppercase">
           Loading...

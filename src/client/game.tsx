@@ -1,12 +1,28 @@
 import './index.css';
 
-import { StrictMode } from 'react';
+import React, { StrictMode, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import { navigateTo } from '@devvit/web/client';
 import HomeScreen from './components/HomeScreen';
+import IntelScreen from './components/IntelScreen';
+import RankingScreen from './components/RankingScreen';
+import ProfileScreen from './components/ProfileScreen';
+import type { Tab } from './shared/types';
+
+const SCREENS: Record<
+  Tab,
+  React.ComponentType<{ onNavigate: (tab: Tab) => void }>
+> = {
+  analyze: HomeScreen,
+  intel: IntelScreen,
+  ranking: RankingScreen,
+  profile: ProfileScreen,
+};
 
 export const App = () => {
-  return <HomeScreen />;
+  const [activeTab, setActiveTab] = useState<Tab>('analyze');
+  const Screen = SCREENS[activeTab];
+
+  return <Screen onNavigate={setActiveTab} />;
 };
 
 createRoot(document.getElementById('root')!).render(

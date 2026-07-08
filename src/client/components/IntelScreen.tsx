@@ -1,8 +1,13 @@
 import AppLayout from './AppLayout';
+import type { Tab } from '../shared/types';
 
-export default function IntelScreen() {
+type IntelScreenProps = {
+  onNavigate: (tab: Tab) => void;
+};
+
+export default function IntelScreen({ onNavigate }: IntelScreenProps) {
   return (
-    <AppLayout activeTab="intel">
+    <AppLayout activeTab="intel" onNavigate={onNavigate}>
       <div className="text-label-sm font-mono text-muted uppercase">
         Intelligence Dashboard
       </div>

@@ -1,12 +1,11 @@
 import { ReactNode } from 'react';
 import BottomNav from './BottomNav';
-
-type Tab = 'analyze' | 'intel' | 'ranking' | 'profile';
+import type { Tab } from '../shared/types';
 
 type AppLayoutProps = {
   children: ReactNode;
   activeTab: Tab;
-  onNavigate?: (tab: Tab) => void;
+  onNavigate: (tab: Tab) => void;
 };
 
 export default function AppLayout({

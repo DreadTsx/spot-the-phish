@@ -1,6 +1,5 @@
 import { Terminal, Shield, BarChart3, CircleUser } from 'lucide-react';
-
-type Tab = 'analyze' | 'intel' | 'ranking' | 'profile';
+import type { Tab } from '../shared/types';
 
 const TABS: { id: Tab; label: string; Icon: typeof Terminal }[] = [
   { id: 'analyze', label: 'Analyze', Icon: Terminal },
@@ -11,7 +10,7 @@ const TABS: { id: Tab; label: string; Icon: typeof Terminal }[] = [
 
 type BottomNavProps = {
   active: Tab;
-  onNavigate?: (tab: Tab) => void;
+  onNavigate: (tab: Tab) => void;
 };
 
 export default function BottomNav({ active, onNavigate }: BottomNavProps) {
@@ -22,7 +21,7 @@ export default function BottomNav({ active, onNavigate }: BottomNavProps) {
         return (
           <button
             key={id}
-            onClick={() => onNavigate?.(id)}
+            onClick={() => onNavigate(id)}
             className={`flex flex-col items-center justify-center py-3 flex-1 border-t-2 transition-colors ${
               isActive
                 ? 'text-danger border-danger bg-danger/5'
