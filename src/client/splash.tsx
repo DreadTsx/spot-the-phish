@@ -9,7 +9,7 @@ export const Splash = () => {
   return (
     <div className="flex relative flex-col justify-center items-center min-h-screen gap-4 bg-white dark:bg-gray-900">
       <img
-        className="object-contain w-1/2 max-w-[250px] mx-auto"
+        className="object-contain w-1/2 max-w-62.5 mx-auto"
         src="/snoo.png"
         alt="Snoo"
       />

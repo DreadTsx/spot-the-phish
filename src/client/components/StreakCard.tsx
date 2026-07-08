@@ -4,7 +4,7 @@ type StreakCardProps = {
   streak: number;
 };
 
-export function StreakCard({ streak }: StreakCardProps) {
+export default function StreakCard({ streak }: StreakCardProps) {
   return (
     <div className="relative bg-surface border border-border p-6 flex flex-col items-center justify-center overflow-hidden">
       {/* Subtle dot-grid texture, matches the SOC "technical readout" feel */}
