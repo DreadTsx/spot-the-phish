@@ -13,7 +13,7 @@ export const mockScenario: Scenario = {
   subject: {
     id: 'subject',
     text: 'ACTION REQUIRED: Your Account Has Been Limited',
-    isRedFlag: false, // decoy — alarming tone, but subject lines aren't a real signal on their own
+    isRedFlag: false,
     explanation:
       'Urgent-sounding subject lines alone are common and not a reliable signal.',
   },

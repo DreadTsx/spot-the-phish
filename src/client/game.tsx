@@ -7,7 +7,8 @@ import IntelScreen from './components/IntelScreen';
 import RankingScreen from './components/RankingScreen';
 import GameplayScreen from './components/GameplayScreen';
 import ProfileScreen from './components/ProfileScreen';
-import type { Tab } from './shared/types';
+import ResultsScreen from './components/ResultsScreen';
+import type { Tab, RoundResult } from './shared/types';
 
 const SCREENS: Record<
   Tab,
@@ -22,9 +23,29 @@ const SCREENS: Record<
 export const App = () => {
   const [activeTab, setActiveTab] = useState<Tab>('analyze');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [roundResult, setRoundResult] = useState<RoundResult | null>(null);
+
+  if (roundResult) {
+    return (
+      <ResultsScreen
+        result={roundResult}
+        onNavigate={(tab) => {
+          setRoundResult(null);
+          setActiveTab(tab);
+        }}
+      />
+    );
+  }
 
   if (isPlaying) {
-    return <GameplayScreen onExit={() => setIsPlaying(false)} />;
+    return (
+      <GameplayScreen
+        onComplete={(result) => {
+          setIsPlaying(false);
+          setRoundResult(result);
+        }}
+      />
+    );
   }
 
   if (activeTab === 'analyze') {

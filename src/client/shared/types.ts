@@ -24,3 +24,11 @@ export type Scenario = {
   bodyLink: FlagSegment;
   bodyOutro: string;
 };
+
+export type RoundResult = {
+  scenario: Scenario;
+  tappedIds: Set<string>;
+  correctFlagsFound: number;
+  totalRedFlags: number;
+  score: number;
+};

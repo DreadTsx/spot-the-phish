@@ -32,11 +32,16 @@ export function useGameState() {
   // Countdown — auto-submits at zero
   useEffect(() => {
     if (phase !== 'playing') return;
-    if (secondsRemaining <= 0) {
-      submit();
-      return;
-    }
-    const timer = setTimeout(() => setSecondsRemaining((s) => s - 1), 1000);
+    const timer = setTimeout(() => {
+      setSecondsRemaining((s) => {
+        const next = s - 1;
+        if (next <= 0) {
+          submit();
+          return 0;
+        }
+        return next;
+      });
+    }, 1000);
     return () => clearTimeout(timer);
   }, [phase, secondsRemaining, submit]);
 
@@ -45,7 +50,12 @@ export function useGameState() {
       if (phase !== 'playing') return;
       setTappedIds((prev) => {
         const next = new Set(prev);
-        next.has(id) ? next.delete(id) : next.add(id);
+        //
+        if (next.has(id)) {
+          next.delete(id);
+        } else {
+          next.add(id);
+        }
         return next;
       });
     },

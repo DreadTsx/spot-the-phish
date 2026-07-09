@@ -2,12 +2,13 @@ import { ScenarioView } from './ScenarioView';
 import Timer from './Timer';
 import PrimaryButton from './PrimaryButton';
 import { useGameState } from '../hooks/useGameState';
+import { RoundResult } from '../shared/types';
 
 type GameplayScreenProps = {
-  onExit: () => void;
+  onComplete: (result: RoundResult) => void;
 };
 
-export default function GameplayScreen({ onExit }: GameplayScreenProps) {
+export default function GameplayScreen({ onComplete }: GameplayScreenProps) {
   const {
     scenario,
     secondsRemaining,
@@ -65,7 +66,13 @@ export default function GameplayScreen({ onExit }: GameplayScreenProps) {
           variant="danger"
           onclick={() => {
             submit();
-            onExit();
+            onComplete({
+              scenario,
+              tappedIds,
+              correctFlagsFound,
+              totalRedFlags,
+              score,
+            });
           }}
         />
       </section>
