@@ -4,7 +4,9 @@ import type {
   DecrementResponse,
   IncrementResponse,
   InitResponse,
+  ScenarioResponse,
 } from '../../shared/api';
+import { getScenarioForDate } from '../data/scenarios';
 
 type ErrorResponse = {
   status: 'error';
@@ -12,6 +14,19 @@ type ErrorResponse = {
 };
 
 export const api = new Hono();
+
+api.get('/scenario', async (c) => {
+  try {
+    const scenario = getScenarioForDate(new Date());
+    return c.json<ScenarioResponse>({ type: 'scenario', scenario });
+  } catch (error) {
+    console.error('API Scenario Error:', error);
+    return c.json<ErrorResponse>(
+      { status: 'error', message: "Failed to load today's scenario" },
+      500
+    );
+  }
+});
 
 api.get('/init', async (c) => {
   const { postId } = context;

@@ -1,3 +1,9 @@
+import type { Scenario } from './types';
+
+export type ScenarioResponse = {
+  type: 'scenario';
+  scenario: Scenario;
+};
 export type InitResponse = {
   type: 'init';
   postId: string;

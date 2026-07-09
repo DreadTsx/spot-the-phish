@@ -11,6 +11,7 @@ type GameplayScreenProps = {
 export default function GameplayScreen({ onComplete }: GameplayScreenProps) {
   const {
     scenario,
+    isLoadingScenario,
     secondsRemaining,
     totalSeconds,
     tappedIds,
@@ -20,6 +21,16 @@ export default function GameplayScreen({ onComplete }: GameplayScreenProps) {
     totalRedFlags,
     score,
   } = useGameState();
+
+  if (isLoadingScenario || !scenario) {
+    return (
+      <main className="w-full max-w-120 min-h-screen mx-auto flex flex-col items-center justify-center border-x border-border bg-background">
+        <span className="text-label-sm font-mono text-muted uppercase tracking-widest">
+          Loading Today&apos;s Threat...
+        </span>
+      </main>
+    );
+  }
 
   return (
     <main className="w-full max-w-120 min-h-screen mx-auto flex flex-col border-x border-border bg-background">

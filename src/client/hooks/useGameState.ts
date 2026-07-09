@@ -1,25 +1,47 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
-import { mockScenario } from '../data/mockScenario';
 import type { Scenario } from '../shared/types';
+import type { ScenarioResponse } from '../../shared/api';
 
 const ROUND_SECONDS = 30;
 const BASE_SCORE = 1000;
 
 export function useGameState() {
-  const [scenario] = useState<Scenario>(mockScenario);
+  const [scenario, setScenario] = useState<Scenario | null>(null);
+  const [isLoadingScenario, setIsLoadingScenario] = useState(true);
   const [secondsRemaining, setSecondsRemaining] = useState(ROUND_SECONDS);
   const [tappedIds, setTappedIds] = useState<Set<string>>(new Set());
   const [phase, setPhase] = useState<'playing' | 'ended'>('playing');
 
-  const allFlags = useMemo(
-    () => [
+  // Fetch today's scenario once on mount
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch('/api/scenario')
+      .then((res) => res.json())
+      .then((json: ScenarioResponse) => {
+        if (cancelled) return;
+        setScenario(json.scenario);
+        setIsLoadingScenario(false);
+      })
+      .catch((error) => {
+        console.error('Failed to load scenario:', error);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const allFlags = useMemo(() => {
+    if (!scenario) return [];
+    return [
       scenario.sender,
       scenario.subject,
       scenario.bodyFlaggedLine,
       scenario.bodyLink,
-    ],
-    [scenario]
-  );
+    ];
+  }, [scenario]);
+
   const totalRedFlags = useMemo(
     () => allFlags.filter((f) => f.isRedFlag).length,
     [allFlags]
@@ -29,9 +51,12 @@ export function useGameState() {
     setPhase((current) => (current === 'playing' ? 'ended' : current));
   }, []);
 
-  // Countdown — auto-submits at zero
+  // Countdown — only runs once the scenario has actually loaded, and
+  // auto-submits when it hits zero
   useEffect(() => {
     if (phase !== 'playing') return;
+    if (isLoadingScenario) return;
+
     const timer = setTimeout(() => {
       setSecondsRemaining((s) => {
         const next = s - 1;
@@ -42,15 +67,15 @@ export function useGameState() {
         return next;
       });
     }, 1000);
+
     return () => clearTimeout(timer);
-  }, [phase, secondsRemaining, submit]);
+  }, [phase, secondsRemaining, isLoadingScenario, submit]);
 
   const toggleFlag = useCallback(
     (id: string) => {
       if (phase !== 'playing') return;
       setTappedIds((prev) => {
         const next = new Set(prev);
-        //
         if (next.has(id)) {
           next.delete(id);
         } else {
@@ -66,6 +91,7 @@ export function useGameState() {
     () => allFlags.filter((f) => f.isRedFlag && tappedIds.has(f.id)).length,
     [allFlags, tappedIds]
   );
+
   const score = useMemo(
     () => BASE_SCORE + correctFlagsFound * 250,
     [correctFlagsFound]
@@ -73,6 +99,7 @@ export function useGameState() {
 
   return {
     scenario,
+    isLoadingScenario,
     secondsRemaining,
     totalSeconds: ROUND_SECONDS,
     phase,
