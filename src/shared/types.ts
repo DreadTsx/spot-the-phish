@@ -22,3 +22,22 @@ export type StreakData = {
   longestStreak: number;
   hasPlayedToday: boolean;
 };
+
+export type LeaderboardEntry = {
+  rank: number;
+  username: string;
+  score: number;
+};
+
+export type LeaderboardData = {
+  top: LeaderboardEntry[];
+  currentUser: LeaderboardEntry | null;
+};
+
+export type ProfileData = {
+  streak: StreakData;
+  totalScore: number;
+  threatsDetected: number;
+  falsePositives: number;
+  recentPlayDates: string[];
+};

@@ -8,9 +8,15 @@ import type {
   SubmitRequest,
   SubmitResponse,
   StreakResponse,
+  LeaderboardResponse,
+  ProfileResponse,
+  TodayResultResponse,
 } from '../../shared/api';
 import { getScenarioForDate } from '../data/scenarios';
 import { getStreak, recordRoundPlayed } from '../core/streak';
+import { getProfileStats, recordRoundStats } from '../core/profile';
+import { recordLeaderboardScore, getLeaderboard } from '../core/leaderboard';
+import { getTodayRound, saveTodayRound } from '../core/roundLock';
 
 type ErrorResponse = {
   status: 'error';
@@ -32,6 +38,19 @@ api.get('/scenario', async (c) => {
   }
 });
 
+api.get('/today-result', async (c) => {
+  try {
+    const round = await getTodayRound();
+    return c.json<TodayResultResponse>({ type: 'todayResult', round });
+  } catch (error) {
+    console.error('API Today-Result Error:', error);
+    return c.json<ErrorResponse>(
+      { status: 'error', message: "Failed to load today's result" },
+      500
+    );
+  }
+});
+
 api.get('/streak', async (c) => {
   try {
     const streak = await getStreak();
@@ -45,8 +64,52 @@ api.get('/streak', async (c) => {
   }
 });
 
+api.get('/leaderboard', async (c) => {
+  try {
+    const scope = c.req.query('scope') === 'alltime' ? 'alltime' : 'today';
+    const username = (await reddit.getCurrentUsername()) ?? 'anonymous';
+    const data = await getLeaderboard(scope, username);
+    return c.json<LeaderboardResponse>({ type: 'leaderboard', scope, data });
+  } catch (error) {
+    console.error('API Leaderboard Error:', error);
+    return c.json<ErrorResponse>(
+      { status: 'error', message: 'Failed to load leaderboard' },
+      500
+    );
+  }
+});
+
+api.get('/profile', async (c) => {
+  try {
+    const [streak, stats] = await Promise.all([getStreak(), getProfileStats()]);
+    return c.json<ProfileResponse>({
+      type: 'profile',
+      profile: { streak, ...stats },
+    });
+  } catch (error) {
+    console.error('API Profile Error:', error);
+    return c.json<ErrorResponse>(
+      { status: 'error', message: 'Failed to load profile' },
+      500
+    );
+  }
+});
+
 api.post('/submit', async (c) => {
   try {
+    const existing = await getTodayRound();
+    if (existing) {
+      const streak = await getStreak();
+      return c.json<SubmitResponse>({
+        type: 'submit',
+        correctFlagsFound: existing.correctFlagsFound,
+        totalRedFlags: existing.totalRedFlags,
+        score: existing.score,
+        streak,
+        alreadyPlayed: true,
+      });
+    }
+
     const { tappedIds } = await c.req.json<SubmitRequest>();
     const scenario = getScenarioForDate(new Date());
 
@@ -62,7 +125,14 @@ api.post('/submit', async (c) => {
     ).length;
     const score = 1000 + correctFlagsFound * 250;
 
-    const streak = await recordRoundPlayed();
+    const username = (await reddit.getCurrentUsername()) ?? 'anonymous';
+
+    const [streak] = await Promise.all([
+      recordRoundPlayed(),
+      recordRoundStats(tappedIds.length, correctFlagsFound, score),
+      recordLeaderboardScore(username, score),
+      saveTodayRound({ tappedIds, correctFlagsFound, totalRedFlags, score }),
+    ]);
 
     return c.json<SubmitResponse>({
       type: 'submit',
@@ -70,6 +140,7 @@ api.post('/submit', async (c) => {
       totalRedFlags,
       score,
       streak,
+      alreadyPlayed: false,
     });
   } catch (error) {
     console.error('API Submit Error:', error);

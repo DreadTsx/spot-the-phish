@@ -11,10 +11,9 @@ import ResultsScreen from './components/ResultsScreen';
 import type { Tab, RoundResult } from './shared/types';
 
 const SCREENS: Record<
-  Tab,
+  Exclude<Tab, 'analyze'>,
   React.ComponentType<{ onNavigate: (tab: Tab) => void }>
 > = {
-  analyze: HomeScreen,
   intel: IntelScreen,
   ranking: RankingScreen,
   profile: ProfileScreen,
@@ -53,11 +52,12 @@ export const App = () => {
       <HomeScreen
         onNavigate={setActiveTab}
         onAnalyze={() => setIsPlaying(true)}
+        onViewTodayResult={(result) => setRoundResult(result)}
       />
     );
   }
-  const Screen = SCREENS[activeTab];
 
+  const Screen = SCREENS[activeTab];
   return <Screen onNavigate={setActiveTab} />;
 };
 

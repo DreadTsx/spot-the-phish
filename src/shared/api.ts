@@ -1,4 +1,9 @@
-import type { Scenario, StreakData } from './types';
+import type {
+  Scenario,
+  StreakData,
+  LeaderboardData,
+  ProfileData,
+} from './types';
 
 export type ScenarioResponse = {
   type: 'scenario';
@@ -15,11 +20,35 @@ export type SubmitResponse = {
   totalRedFlags: number;
   score: number;
   streak: StreakData;
+  alreadyPlayed: boolean;
 };
 
 export type StreakResponse = {
   type: 'streak';
   streak: StreakData;
+};
+
+export type LeaderboardResponse = {
+  type: 'leaderboard';
+  scope: 'today' | 'alltime';
+  data: LeaderboardData;
+};
+
+export type ProfileResponse = {
+  type: 'profile';
+  profile: ProfileData;
+};
+
+export type TodayRoundData = {
+  tappedIds: string[];
+  correctFlagsFound: number;
+  totalRedFlags: number;
+  score: number;
+};
+
+export type TodayResultResponse = {
+  type: 'todayResult';
+  round: TodayRoundData | null;
 };
 
 export type InitResponse = {

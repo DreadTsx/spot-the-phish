@@ -1,5 +1,19 @@
-import type { FlagSegment, Scenario, StreakData } from '../../shared/types';
-export type { FlagSegment, Scenario, StreakData };
+import type {
+  FlagSegment,
+  Scenario,
+  StreakData,
+  LeaderboardEntry,
+  LeaderboardData,
+  ProfileData,
+} from '../../shared/types';
+export type {
+  FlagSegment,
+  Scenario,
+  StreakData,
+  LeaderboardEntry,
+  LeaderboardData,
+  ProfileData,
+};
 
 export type Tab = 'analyze' | 'intel' | 'ranking' | 'profile';
 
