@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import type { Scenario } from '../shared/types';
-import type { ScenarioResponse } from '../../shared/api';
+import type { ScenarioResponse, SubmitResponse } from '../../shared/api';
 
 const ROUND_SECONDS = 30;
 const BASE_SCORE = 1000;
@@ -11,8 +11,8 @@ export function useGameState() {
   const [secondsRemaining, setSecondsRemaining] = useState(ROUND_SECONDS);
   const [tappedIds, setTappedIds] = useState<Set<string>>(new Set());
   const [phase, setPhase] = useState<'playing' | 'ended'>('playing');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Fetch today's scenario once on mount
   useEffect(() => {
     let cancelled = false;
 
@@ -47,12 +47,10 @@ export function useGameState() {
     [allFlags]
   );
 
-  const submit = useCallback(() => {
+  const endRound = useCallback(() => {
     setPhase((current) => (current === 'playing' ? 'ended' : current));
   }, []);
 
-  // Countdown — only runs once the scenario has actually loaded, and
-  // auto-submits when it hits zero
   useEffect(() => {
     if (phase !== 'playing') return;
     if (isLoadingScenario) return;
@@ -61,7 +59,7 @@ export function useGameState() {
       setSecondsRemaining((s) => {
         const next = s - 1;
         if (next <= 0) {
-          submit();
+          endRound();
           return 0;
         }
         return next;
@@ -69,7 +67,7 @@ export function useGameState() {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [phase, secondsRemaining, isLoadingScenario, submit]);
+  }, [phase, secondsRemaining, isLoadingScenario, endRound]);
 
   const toggleFlag = useCallback(
     (id: string) => {
@@ -91,11 +89,29 @@ export function useGameState() {
     () => allFlags.filter((f) => f.isRedFlag && tappedIds.has(f.id)).length,
     [allFlags, tappedIds]
   );
-
   const score = useMemo(
     () => BASE_SCORE + correctFlagsFound * 250,
     [correctFlagsFound]
   );
+
+  const submitRound = useCallback(async (): Promise<SubmitResponse | null> => {
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ tappedIds: Array.from(tappedIds) }),
+      });
+      const json: SubmitResponse = await res.json();
+      return json;
+    } catch (error) {
+      console.error('Failed to submit round:', error);
+      return null;
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [tappedIds]);
 
   return {
     scenario,
@@ -105,7 +121,9 @@ export function useGameState() {
     phase,
     tappedIds,
     toggleFlag,
-    submit,
+    endRound,
+    submitRound,
+    isSubmitting,
     correctFlagsFound,
     totalRedFlags,
     score,

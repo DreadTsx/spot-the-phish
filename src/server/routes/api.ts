@@ -5,8 +5,12 @@ import type {
   IncrementResponse,
   InitResponse,
   ScenarioResponse,
+  SubmitRequest,
+  SubmitResponse,
+  StreakResponse,
 } from '../../shared/api';
 import { getScenarioForDate } from '../data/scenarios';
+import { getStreak, recordRoundPlayed } from '../core/streak';
 
 type ErrorResponse = {
   status: 'error';
@@ -23,6 +27,54 @@ api.get('/scenario', async (c) => {
     console.error('API Scenario Error:', error);
     return c.json<ErrorResponse>(
       { status: 'error', message: "Failed to load today's scenario" },
+      500
+    );
+  }
+});
+
+api.get('/streak', async (c) => {
+  try {
+    const streak = await getStreak();
+    return c.json<StreakResponse>({ type: 'streak', streak });
+  } catch (error) {
+    console.error('API Streak Error:', error);
+    return c.json<ErrorResponse>(
+      { status: 'error', message: 'Failed to load streak' },
+      500
+    );
+  }
+});
+
+api.post('/submit', async (c) => {
+  try {
+    const { tappedIds } = await c.req.json<SubmitRequest>();
+    const scenario = getScenarioForDate(new Date());
+
+    const allFlags = [
+      scenario.sender,
+      scenario.subject,
+      scenario.bodyFlaggedLine,
+      scenario.bodyLink,
+    ];
+    const totalRedFlags = allFlags.filter((f) => f.isRedFlag).length;
+    const correctFlagsFound = allFlags.filter(
+      (f) => f.isRedFlag && tappedIds.includes(f.id)
+    ).length;
+    const score = 1000 + correctFlagsFound * 250;
+
+    const streak = await recordRoundPlayed();
+
+    return c.json<SubmitResponse>({
+      type: 'submit',
+      correctFlagsFound,
+      totalRedFlags,
+      score,
+      streak,
+    });
+  } catch (error) {
+    console.error('API Submit Error:', error);
+    return c.json<ErrorResponse>(
+      { status: 'error', message: 'Failed to submit round' },
       500
     );
   }
@@ -71,38 +123,24 @@ api.post('/increment', async (c) => {
   const { postId } = context;
   if (!postId) {
     return c.json<ErrorResponse>(
-      {
-        status: 'error',
-        message: 'postId is required',
-      },
+      { status: 'error', message: 'postId is required' },
       400
     );
   }
 
   const count = await redis.incrBy('count', 1);
-  return c.json<IncrementResponse>({
-    count,
-    postId,
-    type: 'increment',
-  });
+  return c.json<IncrementResponse>({ count, postId, type: 'increment' });
 });
 
 api.post('/decrement', async (c) => {
   const { postId } = context;
   if (!postId) {
     return c.json<ErrorResponse>(
-      {
-        status: 'error',
-        message: 'postId is required',
-      },
+      { status: 'error', message: 'postId is required' },
       400
     );
   }
 
   const count = await redis.incrBy('count', -1);
-  return c.json<DecrementResponse>({
-    count,
-    postId,
-    type: 'decrement',
-  });
+  return c.json<DecrementResponse>({ count, postId, type: 'decrement' });
 });

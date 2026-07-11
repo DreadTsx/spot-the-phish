@@ -1,22 +1,28 @@
 import { useEffect, useState } from 'react';
-import { StreakData } from '../shared/types';
+import type { StreakData } from '../shared/types';
+import type { StreakResponse } from '../../shared/api';
 
-/* ! I need to replace the mock below with a real fetch to the Hono backend once it exists.*/
 export function useStreak() {
   const [data, setData] = useState<StreakData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const mock: StreakData = {
-      current: 14,
-      longestStreak: 24,
-      hasPlayedToday: false,
+    let cancelled = false;
+
+    fetch('/api/streak')
+      .then((res) => res.json())
+      .then((json: StreakResponse) => {
+        if (cancelled) return;
+        setData(json.streak);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error('Failed to load streak:', error);
+      });
+
+    return () => {
+      cancelled = true;
     };
-    const timer = setTimeout(() => {
-      setData(mock);
-      setIsLoading(false);
-    }, 150);
-    return () => clearTimeout(timer);
   }, []);
 
   return { data, isLoading };

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { ScenarioView } from './ScenarioView';
 import Timer from './Timer';
 import PrimaryButton from './PrimaryButton';
@@ -16,11 +17,37 @@ export default function GameplayScreen({ onComplete }: GameplayScreenProps) {
     totalSeconds,
     tappedIds,
     toggleFlag,
-    submit,
+    endRound,
+    submitRound,
+    isSubmitting,
     correctFlagsFound,
     totalRedFlags,
     score,
+    phase,
   } = useGameState();
+
+  const hasSubmittedRef = useRef(false);
+
+  useEffect(() => {
+    if (phase !== 'ended' || hasSubmittedRef.current) return;
+    hasSubmittedRef.current = true;
+
+    void (async () => {
+      const [result] = await Promise.all([
+        submitRound(),
+        new Promise((resolve) => setTimeout(resolve, 400)),
+      ]);
+
+      onComplete({
+        scenario: scenario!,
+        tappedIds,
+        correctFlagsFound: result?.correctFlagsFound ?? correctFlagsFound,
+        totalRedFlags: result?.totalRedFlags ?? totalRedFlags,
+        score: result?.score ?? score,
+      });
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   if (isLoadingScenario || !scenario) {
     return (
@@ -73,18 +100,10 @@ export default function GameplayScreen({ onComplete }: GameplayScreenProps) {
 
       <section className="w-full p-4 border-t border-border bg-surface">
         <PrimaryButton
-          label="Submit Analysis"
+          label={isSubmitting ? 'Submitting...' : 'Submit Analysis'}
           variant="danger"
-          onclick={() => {
-            submit();
-            onComplete({
-              scenario,
-              tappedIds,
-              correctFlagsFound,
-              totalRedFlags,
-              score,
-            });
-          }}
+          onclick={endRound}
+          disabled={isSubmitting}
         />
       </section>
     </main>

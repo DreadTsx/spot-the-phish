@@ -16,3 +16,9 @@ export type Scenario = {
   bodyLink: FlagSegment;
   bodyOutro: string;
 };
+
+export type StreakData = {
+  current: number;
+  longestStreak: number;
+  hasPlayedToday: boolean;
+};

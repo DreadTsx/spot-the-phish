@@ -1,12 +1,7 @@
-import type { FlagSegment, Scenario } from '../../shared/types';
-export type { FlagSegment, Scenario };
-export type Tab = 'analyze' | 'intel' | 'ranking' | 'profile';
+import type { FlagSegment, Scenario, StreakData } from '../../shared/types';
+export type { FlagSegment, Scenario, StreakData };
 
-export type StreakData = {
-  current: number;
-  longestStreak: number;
-  hasPlayedToday: boolean;
-};
+export type Tab = 'analyze' | 'intel' | 'ranking' | 'profile';
 
 export type RoundResult = {
   scenario: Scenario;

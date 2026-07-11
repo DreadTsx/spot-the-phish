@@ -4,12 +4,14 @@ type PrimaryButtonProp = {
   label: string;
   onclick?: () => void;
   variant: 'danger' | 'safe' | 'ghost';
+  disabled?: boolean;
 };
 
 export default function PrimaryButton({
   label,
   onclick,
   variant = 'danger',
+  disabled = false,
 }: PrimaryButtonProp) {
   const isSafe = variant === 'safe';
   const isGhost = variant === 'ghost';
@@ -22,7 +24,8 @@ export default function PrimaryButton({
   return (
     <button
       onClick={onclick}
-      className={`w-full py-4 px-5 font-sans text-[16px] font-bold flex items-center justify-between gap-2 border transition-all duration-150 ease-out active:scale-[0.98] group whitespace-nowrap ${variantClasses}`}
+      disabled={disabled}
+      className={`w-full py-4 px-5 font-sans text-[16px] font-bold flex items-center justify-between gap-2 border transition-all duration-150 ease-out active:scale-[0.98] group whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed ${variantClasses}`}
     >
       <span className="uppercase">{label}</span>
       {!isGhost && (
