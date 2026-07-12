@@ -57,7 +57,7 @@ export default function HomeScreen({
   onAnalyze,
   onViewTodayResult,
 }: HomeScreenProps) {
-  const { data, isLoading } = useStreak();
+  const { data, isLoading, isError, retry } = useStreak();
   const { round } = useTodayResult(Boolean(data?.hasPlayedToday));
 
   const handleAnalyzeClick = async () => {
@@ -88,7 +88,19 @@ export default function HomeScreen({
 
   return (
     <AppLayout activeTab="analyze" onNavigate={onNavigate}>
-      {isLoading || !data ? (
+      {isError ? (
+        <div className="flex flex-col items-center gap-3">
+          <span className="text-label-sm font-mono text-danger uppercase">
+            Failed to connect
+          </span>
+          <button
+            onClick={retry}
+            className="text-label-sm font-mono text-muted hover:text-text border-b border-muted hover:border-text pb-1"
+          >
+            Retry
+          </button>
+        </div>
+      ) : isLoading || !data ? (
         <div className="text-label-sm font-mono text-muted uppercase">
           Loading...
         </div>

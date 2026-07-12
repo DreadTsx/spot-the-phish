@@ -11,10 +11,10 @@ type RankingScreenProps = {
 
 export default function RankingScreen({ onNavigate }: RankingScreenProps) {
   const [scope, setScope] = useState<'today' | 'alltime'>('today');
-  const { data, isLoading } = useLeaderboard(scope);
+  const { data, isLoading, isError, retry } = useLeaderboard(scope);
 
   return (
-    <AppLayout activeTab="ranking" onNavigate={onNavigate}>
+    <AppLayout activeTab="ranking" onNavigate={onNavigate} title="Top Analysts">
       <div className="flex w-full border border-border bg-surface animate-fade-in-up">
         <button
           onClick={() => setScope('today')}
@@ -39,7 +39,19 @@ export default function RankingScreen({ onNavigate }: RankingScreenProps) {
       </div>
 
       <div className="flex flex-col gap-1 mt-4">
-        {isLoading || !data ? (
+        {isError ? (
+          <div className="flex flex-col items-center gap-3 mt-4">
+            <span className="text-label-sm font-mono text-danger uppercase">
+              Failed to load leaderboard
+            </span>
+            <button
+              onClick={retry}
+              className="text-label-sm font-mono text-muted hover:text-text border-b border-muted hover:border-text pb-1"
+            >
+              Retry
+            </button>
+          </div>
+        ) : isLoading || !data ? (
           <span className="text-label-sm font-mono text-muted uppercase">
             Loading...
           </span>

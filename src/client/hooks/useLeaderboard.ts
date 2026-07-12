@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { LeaderboardData } from '../shared/types';
 import type { LeaderboardResponse } from '../../shared/api';
 
@@ -9,6 +9,8 @@ export function useLeaderboard(scope: Scope) {
     scope: Scope;
     data: LeaderboardData;
   } | null>(null);
+  const [errorScope, setErrorScope] = useState<Scope | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -18,16 +20,23 @@ export function useLeaderboard(scope: Scope) {
       .then((json: LeaderboardResponse) => {
         if (cancelled) return;
         setResult({ scope: json.scope, data: json.data });
+        setErrorScope(null);
       })
-      .catch((error) => console.error('Failed to load leaderboard:', error));
+      .catch((error) => {
+        console.error('Failed to load leaderboard:', error);
+        if (!cancelled) setErrorScope(scope);
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [scope]);
+  }, [scope, retryCount]);
 
-  const isLoading = result === null || result.scope !== scope;
+  const isLoading = result?.scope !== scope && errorScope !== scope;
+  const isError = errorScope === scope;
   const data = result && result.scope === scope ? result.data : null;
 
-  return { data, isLoading };
+  const retry = useCallback(() => setRetryCount((n) => n + 1), []);
+
+  return { data, isLoading, isError, retry };
 }

@@ -18,11 +18,37 @@ function getLast7Days(): string[] {
 }
 
 export default function ProfileScreen({ onNavigate }: ProfileScreenProps) {
-  const { data, isLoading } = useProfile();
+  const { data, isLoading, isError, retry } = useProfile();
+
+  if (isError) {
+    return (
+      <AppLayout
+        activeTab="profile"
+        onNavigate={onNavigate}
+        title="Operator Profile"
+      >
+        <div className="flex flex-col items-center gap-3 mt-8">
+          <span className="text-label-sm font-mono text-danger uppercase">
+            Failed to load profile
+          </span>
+          <button
+            onClick={retry}
+            className="text-label-sm font-mono text-muted hover:text-text border-b border-muted hover:border-text pb-1"
+          >
+            Retry
+          </button>
+        </div>
+      </AppLayout>
+    );
+  }
 
   if (isLoading || !data) {
     return (
-      <AppLayout activeTab="profile" onNavigate={onNavigate}>
+      <AppLayout
+        activeTab="profile"
+        onNavigate={onNavigate}
+        title="Operator Profile"
+      >
         <span className="text-label-sm font-mono text-muted uppercase">
           Loading...
         </span>
@@ -44,7 +70,11 @@ export default function ProfileScreen({ onNavigate }: ProfileScreenProps) {
   const playedSet = new Set(recentPlayDates);
 
   return (
-    <AppLayout activeTab="profile" onNavigate={onNavigate}>
+    <AppLayout
+      activeTab="profile"
+      onNavigate={onNavigate}
+      title="Operator Profile"
+    >
       <div className="flex justify-between items-end animate-fade-in-up">
         <div>
           <p className="text-label-sm font-mono text-muted mb-1">Rank</p>
@@ -169,6 +199,12 @@ export default function ProfileScreen({ onNavigate }: ProfileScreenProps) {
               </span>
             </div>
           </>
+        )}
+
+        {totalRounds === 0 && (
+          <span className="text-[10px] font-mono text-muted uppercase mt-2">
+            Play your first round to start tracking accuracy
+          </span>
         )}
       </section>
     </AppLayout>
