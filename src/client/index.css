@@ -1,8 +1,6 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Colors — canonical, matches DESIGN.md's prose spec (not its stale
-     Material front-matter palette) */
   --color-background: #0a0b0d;
   --color-surface: #16181c;
   --color-border: #2a2d35;
@@ -11,11 +9,9 @@
   --color-text: #f2f2f2;
   --color-muted: #8b8f98;
 
-  /* Fonts */
   --font-sans: 'Hanken Grotesk', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  /* Font sizes — verified v4 syntax: --text-{name} + --text-{name}--line-height */
   --text-headline-lg: 32px;
   --text-headline-lg--line-height: 40px;
   --text-headline-lg-mobile: 24px;
@@ -29,13 +25,9 @@
   --text-label-sm: 12px;
   --text-label-sm--line-height: 16px;
 
-  /* Named spacing — verified: enables p-gutter, gap-gutter, etc. */
   --spacing-gutter: 16px;
   --spacing-margin: 24px;
 
-  /* Hard-Edge Minimalism — force every radius scale key to 0.
-     Verified: overriding --radius-* makes rounded-lg, rounded-full,
-     etc. resolve to 0px automatically, no per-component work needed. */
   --radius-xs: 0px;
   --radius-sm: 0px;
   --radius-md: 0px;
@@ -46,7 +38,6 @@
   --radius-full: 0px;
 }
 
-/* Staggered entrance animation*/
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -96,19 +87,16 @@
   background: var(--color-background);
 }
 
-/* Bottom navigation fixes */
 @media (max-width: 640px) {
   .fixed.bottom-0 {
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
 
-/* Ensure content is not hidden behind fixed elements */
 body {
   padding-bottom: 0;
 }
 
-/* Smooth transitions for bottom nav */
 nav.fixed {
   transition: transform 0.2s ease-in-out;
 }

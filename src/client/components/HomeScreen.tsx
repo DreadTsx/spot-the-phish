@@ -2,8 +2,9 @@ import StreakCard from './StreakCard';
 import PrimaryButton from './PrimaryButton';
 import AppLayout from './AppLayout';
 import { useStreak } from '../hooks/useStreak';
+import { useTodayResult } from '../hooks/useTodayResult';
 import type { Tab, RoundResult } from '../shared/types';
-import type { ScenarioResponse, TodayResultResponse } from '../../shared/api';
+import type { ScenarioResponse, TodayRoundData } from '../../shared/api';
 
 type HomeScreenProps = {
   onNavigate: (tab: Tab) => void;
@@ -11,35 +12,65 @@ type HomeScreenProps = {
   onViewTodayResult: (result: RoundResult) => void;
 };
 
+type ThreatStatus = {
+  label: string;
+  textClass: string;
+  dotClass: string;
+  pulse: boolean;
+};
+
+function getThreatStatus(round: TodayRoundData): ThreatStatus {
+  const falsePositives = round.tappedIds.length - round.correctFlagsFound;
+  const allCorrect = round.correctFlagsFound === round.totalRedFlags;
+  const noFalsePositives = falsePositives <= 0;
+
+  if (allCorrect && noFalsePositives) {
+    return {
+      label: 'Threat Contained',
+      textClass: 'text-safe',
+      dotClass: 'bg-safe',
+      pulse: false,
+    };
+  }
+  if (round.correctFlagsFound === 0) {
+    return {
+      label: 'Threat Not Contained',
+      textClass: 'text-danger',
+      dotClass: 'bg-danger',
+      pulse: true,
+    };
+  }
+  return {
+    label: 'Threat Mitigated',
+    textClass: 'text-muted',
+    dotClass: 'bg-muted',
+    pulse: false,
+  };
+}
+
 export default function HomeScreen({
   onNavigate,
   onAnalyze,
   onViewTodayResult,
 }: HomeScreenProps) {
   const { data, isLoading } = useStreak();
+  const { round } = useTodayResult(Boolean(data?.hasPlayedToday));
 
   const handleAnalyzeClick = async () => {
-    if (data?.hasPlayedToday) {
+    if (data?.hasPlayedToday && round) {
       try {
-        const [scenarioJson, roundJson] = await Promise.all([
-          fetch('/api/scenario').then(
-            (res) => res.json() as Promise<ScenarioResponse>
-          ),
-          fetch('/api/today-result').then(
-            (res) => res.json() as Promise<TodayResultResponse>
-          ),
-        ]);
+        const scenarioJson: ScenarioResponse = await fetch(
+          '/api/scenario'
+        ).then((res) => res.json());
 
-        if (roundJson.round) {
-          onViewTodayResult({
-            scenario: scenarioJson.scenario,
-            tappedIds: new Set(roundJson.round.tappedIds),
-            correctFlagsFound: roundJson.round.correctFlagsFound,
-            totalRedFlags: roundJson.round.totalRedFlags,
-            score: roundJson.round.score,
-          });
-          return;
-        }
+        onViewTodayResult({
+          scenario: scenarioJson.scenario,
+          tappedIds: new Set(round.tappedIds),
+          correctFlagsFound: round.correctFlagsFound,
+          totalRedFlags: round.totalRedFlags,
+          score: round.score,
+        });
+        return;
       } catch (error) {
         console.error("Failed to load today's result:", error);
       }
@@ -47,6 +78,9 @@ export default function HomeScreen({
 
     onAnalyze();
   };
+
+  const status: ThreatStatus | null =
+    data?.hasPlayedToday && round ? getThreatStatus(round) : null;
 
   return (
     <AppLayout activeTab="analyze" onNavigate={onNavigate}>
@@ -64,11 +98,17 @@ export default function HomeScreen({
             {new Date().toISOString().split('T')[0]}
           </span>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-danger animate-pulse block" />
-            <span className="text-code-md font-mono text-danger font-bold uppercase tracking-wide">
-              {data?.hasPlayedToday
-                ? 'Threat Contained'
-                : 'New Threat Detected'}
+            <span
+              className={`w-2 h-2 block ${
+                status ? status.dotClass : 'bg-danger'
+              } ${status ? (status.pulse ? 'animate-pulse' : '') : 'animate-pulse'}`}
+            />
+            <span
+              className={`text-code-md font-mono font-bold uppercase tracking-wide ${
+                status ? status.textClass : 'text-danger'
+              }`}
+            >
+              {status ? status.label : 'New Threat Detected'}
             </span>
           </div>
         </div>
@@ -93,8 +133,7 @@ export default function HomeScreen({
         </button>
       </div>
 
-      {/* Terminal decorative footer */}
-      <div
+      {/* <div
         className="mt-auto pt-12 animate-fade-in-up"
         style={{ animationDelay: '200ms' }}
       >
@@ -108,7 +147,7 @@ export default function HomeScreen({
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </AppLayout>
   );
 }

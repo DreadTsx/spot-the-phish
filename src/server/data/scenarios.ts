@@ -1,8 +1,5 @@
 import type { Scenario } from '../../shared/types';
 
-/**
- * TODO(Section 5): expand this pool to 15-20 real scenarios from my Security+ material. Rotation logic below already supports any pool size...
- */
 const scenarioPool: Scenario[] = [
   {
     id: 'MSG-8942-A',

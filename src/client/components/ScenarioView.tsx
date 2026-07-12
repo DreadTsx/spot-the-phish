@@ -97,7 +97,6 @@ export function ScenarioView({
           <p className="mt-2">{scenario.bodyOutro}</p>
         </div>
 
-        {/* Corner brackets — matches StreakCard's decorative language */}
         <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-text opacity-50" />
         <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-text opacity-50" />
         <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-text opacity-50" />

@@ -17,6 +17,7 @@ import { getStreak, recordRoundPlayed } from '../core/streak';
 import { getProfileStats, recordRoundStats } from '../core/profile';
 import { recordLeaderboardScore, getLeaderboard } from '../core/leaderboard';
 import { getTodayRound, saveTodayRound } from '../core/roundLock';
+import { registerPlayer } from '../core/registry';
 
 type ErrorResponse = {
   status: 'error';
@@ -132,6 +133,7 @@ api.post('/submit', async (c) => {
       recordRoundStats(tappedIds.length, correctFlagsFound, score),
       recordLeaderboardScore(username, score),
       saveTodayRound({ tappedIds, correctFlagsFound, totalRedFlags, score }),
+      registerPlayer(username),
     ]);
 
     return c.json<SubmitResponse>({

@@ -72,3 +72,19 @@ export async function getLeaderboard(
 
   return { top, currentUser };
 }
+
+export async function removePlayerScore(username: string): Promise<void> {
+  const scopes: Scope[] = ['today', 'alltime'];
+
+  await Promise.all(
+    scopes.map(async (scope) => {
+      const key = getLeaderboardKey(scope);
+      const entries = await readEntries(key);
+      const filtered = entries.filter((e) => e.username !== username);
+
+      if (filtered.length !== entries.length) {
+        await redis.set(key, JSON.stringify(filtered));
+      }
+    })
+  );
+}

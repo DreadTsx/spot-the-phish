@@ -32,11 +32,26 @@
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/example-form"
+      },
+      {
+        "label": "⚠️ Reset ALL player data",
+        "description": "Wipes every player's streak, stats, and leaderboard scores. Cannot be undone.",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/reset-all-data"
+      },
+      {
+        "label": "Reset MY data",
+        "description": "Resets your own streak, stats, and today's result. Doesn't affect other players.",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/reset-my-data"
       }
     ]
   },
   "forms": {
-    "exampleForm": "/internal/form/example-submit"
+    "exampleForm": "/internal/form/example-submit",
+    "resetConfirm": "/internal/form/reset-confirm-submit"
   },
   "triggers": {
     "onAppInstall": "/internal/triggers/on-app-install"

@@ -7,7 +7,6 @@ type StreakCardProps = {
 export default function StreakCard({ streak }: StreakCardProps) {
   return (
     <div className="relative bg-surface border border-border p-6 flex flex-col items-center justify-center overflow-hidden">
-      {/* Subtle dot-grid texture, matches the SOC "technical readout" feel */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
@@ -26,7 +25,6 @@ export default function StreakCard({ streak }: StreakCardProps) {
         Day Streak
       </div>
 
-      {/* Corner bracket decoration */}
       <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-muted" />
       <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-muted" />
       <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-muted" />
