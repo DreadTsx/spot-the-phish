@@ -13,6 +13,7 @@ export type Scenario = {
   subject: FlagSegment;
   bodyIntro: string;
   bodyFlaggedLine: FlagSegment;
+  bodyLinkIntro?: string;
   bodyLink: FlagSegment;
   bodyOutro: string;
 };

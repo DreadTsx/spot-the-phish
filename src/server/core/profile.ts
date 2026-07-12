@@ -1,5 +1,4 @@
 import { redis, reddit } from '@devvit/web/server';
-import type { ProfileData } from '../../shared/types';
 
 type StoredProfileStats = {
   totalScore: number;

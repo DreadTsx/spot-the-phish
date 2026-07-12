@@ -80,7 +80,8 @@ export function ScenarioView({
           </FlagOverlay>
 
           <p>
-            Click the secure link below to complete the verification process:
+            {scenario.bodyLinkIntro ??
+              'Click the secure link below to complete the verification process:'}
           </p>
 
           <FlagOverlay

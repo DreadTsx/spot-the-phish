@@ -3,6 +3,7 @@ import FlagReveal from './FlagReveal';
 import { useStreak } from '../hooks/useStreak';
 import type { RoundResult, FlagSegment, Tab } from '../shared/types';
 import PrimaryButton from './PrimaryButton';
+import { getPerformanceTier } from '../utils/performance';
 
 type ResultsScreenProps = {
   result: RoundResult;
@@ -16,18 +17,24 @@ function getStatus(flag: FlagSegment, tapped: boolean) {
   return 'clear' as const;
 }
 
-function getPerformanceLabel(correct: number, total: number) {
-  const ratio = total === 0 ? 1 : correct / total;
-  if (ratio === 1) return 'Sharp Eye';
-  if (ratio >= 0.5) return 'Nice Catch';
-  return 'Stay Alert';
-}
+const TIER_LABELS = {
+  full: 'Sharp Eye',
+  partial: 'Nice Catch',
+  none: 'Stay Alert',
+} as const;
 
 export default function ResultsScreen({
   result,
   onNavigate,
 }: ResultsScreenProps) {
   const { scenario, tappedIds, correctFlagsFound, totalRedFlags } = result;
+  const falsePositives = tappedIds.size - correctFlagsFound;
+  const tier = getPerformanceTier(
+    correctFlagsFound,
+    totalRedFlags,
+    falsePositives
+  );
+
   const { data: streak } = useStreak();
 
   return (
@@ -38,7 +45,7 @@ export default function ResultsScreen({
           {correctFlagsFound}/{totalRedFlags} Flags Found
         </h1>
         <p className="text-label-sm font-mono text-safe uppercase tracking-widest">
-          {getPerformanceLabel(correctFlagsFound, totalRedFlags)}
+          {TIER_LABELS[tier]}
         </p>
       </section>
 
@@ -117,7 +124,8 @@ export default function ResultsScreen({
           </FlagReveal>
 
           <p>
-            Click the secure link below to complete the verification process:
+            {scenario.bodyLinkIntro ??
+              'Click the secure link below to complete the verification process:'}
           </p>
 
           <FlagReveal

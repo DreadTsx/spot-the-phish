@@ -5,6 +5,7 @@ import { useStreak } from '../hooks/useStreak';
 import { useTodayResult } from '../hooks/useTodayResult';
 import type { Tab, RoundResult } from '../shared/types';
 import type { ScenarioResponse, TodayRoundData } from '../../shared/api';
+import { getPerformanceTier } from '../utils/performance';
 
 type HomeScreenProps = {
   onNavigate: (tab: Tab) => void;
@@ -21,10 +22,13 @@ type ThreatStatus = {
 
 function getThreatStatus(round: TodayRoundData): ThreatStatus {
   const falsePositives = round.tappedIds.length - round.correctFlagsFound;
-  const allCorrect = round.correctFlagsFound === round.totalRedFlags;
-  const noFalsePositives = falsePositives <= 0;
+  const tier = getPerformanceTier(
+    round.correctFlagsFound,
+    round.totalRedFlags,
+    falsePositives
+  );
 
-  if (allCorrect && noFalsePositives) {
+  if (tier === 'full') {
     return {
       label: 'Threat Contained',
       textClass: 'text-safe',
@@ -32,7 +36,7 @@ function getThreatStatus(round: TodayRoundData): ThreatStatus {
       pulse: false,
     };
   }
-  if (round.correctFlagsFound === 0) {
+  if (tier === 'none') {
     return {
       label: 'Threat Not Contained',
       textClass: 'text-danger',

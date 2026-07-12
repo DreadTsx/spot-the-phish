@@ -53,16 +53,16 @@ export default function RankingScreen({ onNavigate }: RankingScreenProps) {
             return (
               <div
                 key={entry.username}
-                className={`flex items-center justify-between p-3 animate-fade-in-up ${
+                className={`flex items-center justify-between gap-3 p-4 animate-fade-in-up ${
                   isTopThree
                     ? 'bg-surface border border-safe'
                     : 'border-b border-border'
                 }`}
                 style={{ animationDelay: `${i * 30}ms` }}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0">
                   <span
-                    className={`w-8 text-center font-mono ${
+                    className={`w-8 shrink-0 text-center font-mono ${
                       isTopThree
                         ? 'text-headline-md text-safe'
                         : 'text-label-sm text-muted'
@@ -70,29 +70,33 @@ export default function RankingScreen({ onNavigate }: RankingScreenProps) {
                   >
                     {String(entry.rank).padStart(2, '0')}
                   </span>
-                  <span
-                    className={`font-mono tracking-wide ${
-                      isTopThree
-                        ? 'text-body-md font-bold text-text'
-                        : 'text-label-sm text-muted'
-                    }`}
-                  >
-                    {entry.username}
-                  </span>
-                  {isTopThree && (
-                    <Flame
-                      size={16}
-                      className="text-safe"
-                      fill="currentColor"
-                    />
-                  )}
-                  {isTopThree && (
-                    <span className="text-[9px] font-mono text-safe border border-safe px-1.5 py-0.5 uppercase">
-                      {getRankLabel(entry.longestStreak)}
-                    </span>
-                  )}
+                  <div className="flex flex-col gap-1.5 min-w-0">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span
+                        className={`font-mono tracking-wide truncate ${
+                          isTopThree
+                            ? 'text-body-md font-bold text-text'
+                            : 'text-label-sm text-muted'
+                        }`}
+                      >
+                        {entry.username}
+                      </span>
+                      {isTopThree && (
+                        <Flame
+                          size={14}
+                          className="text-safe shrink-0"
+                          fill="currentColor"
+                        />
+                      )}
+                    </div>
+                    {isTopThree && (
+                      <span className="text-[9px] font-mono text-safe border border-safe px-1.5 py-0.5 uppercase tracking-widest w-fit">
+                        {getRankLabel(entry.longestStreak)}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <span className="font-mono text-code-md text-safe">
+                <span className="font-mono text-code-md text-safe shrink-0">
                   {entry.score.toLocaleString()}
                 </span>
               </div>
@@ -102,16 +106,16 @@ export default function RankingScreen({ onNavigate }: RankingScreenProps) {
 
         {data?.currentUser &&
           !data.top.some((e) => e.username === data.currentUser!.username) && (
-            <div className="mt-4 border-l-4 border-safe bg-surface border-y border-r  p-3 flex items-center justify-between animate-fade-in-up">
-              <div className="flex items-center gap-3">
-                <span className="text-label-sm font-mono text-text w-8 text-center">
+            <div className="mt-4 border-l-4 border-safe bg-surface border-y border-r p-3 flex items-center justify-between animate-fade-in-up">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-label-sm font-mono text-text w-8 shrink-0 text-center">
                   {data.currentUser.rank}
                 </span>
-                <span className="text-body-md font-mono text-text font-bold">
+                <span className="text-body-md font-mono text-text font-bold truncate">
                   You ({data.currentUser.username})
                 </span>
               </div>
-              <span className="text-code-md font-mono text-text">
+              <span className="text-code-md font-mono text-text shrink-0">
                 {data.currentUser.score.toLocaleString()}
               </span>
             </div>
