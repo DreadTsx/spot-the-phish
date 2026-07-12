@@ -27,6 +27,7 @@ export type LeaderboardEntry = {
   rank: number;
   username: string;
   score: number;
+  longestStreak: number;
 };
 
 export type LeaderboardData = {

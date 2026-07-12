@@ -2,7 +2,7 @@ import { Flame, History } from 'lucide-react';
 import AppLayout from './AppLayout';
 import { useProfile } from '../hooks/useProfile';
 import type { Tab } from '../shared/types';
-
+import { getRankLabel } from '../utils/rank';
 type ProfileScreenProps = {
   onNavigate: (tab: Tab) => void;
 };
@@ -15,12 +15,6 @@ function getLast7Days(): string[] {
     days.push(d.toISOString().split('T')[0]!);
   }
   return days;
-}
-
-function getRankLabel(threatsDetected: number): string {
-  if (threatsDetected >= 500) return 'Gold Analyst';
-  if (threatsDetected >= 100) return 'Silver Analyst';
-  return 'Bronze Analyst';
 }
 
 export default function ProfileScreen({ onNavigate }: ProfileScreenProps) {
@@ -55,7 +49,7 @@ export default function ProfileScreen({ onNavigate }: ProfileScreenProps) {
         <div>
           <p className="text-label-sm font-mono text-muted mb-1">Rank</p>
           <h2 className="text-headline-lg-mobile font-sans font-bold text-text uppercase tracking-tight">
-            {getRankLabel(threatsDetected)}
+            {getRankLabel(streak.longestStreak)}
           </h2>
         </div>
         <div className="border border-safe px-3 py-1">

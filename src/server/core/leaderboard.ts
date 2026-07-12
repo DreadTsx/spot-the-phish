@@ -1,5 +1,6 @@
 import { redis } from '@devvit/web/server';
 import type { LeaderboardData, LeaderboardEntry } from '../../shared/types';
+import { getLongestStreakForUser } from './streak';
 
 type LeaderboardRecord = { username: string; score: number };
 type Scope = 'today' | 'alltime';
@@ -48,11 +49,14 @@ export async function getLeaderboard(
   const entries = await readEntries(key);
   const sorted = [...entries].sort((a, b) => b.score - a.score);
 
-  const top: LeaderboardEntry[] = sorted.slice(0, 10).map((e, i) => ({
-    rank: i + 1,
-    username: e.username,
-    score: e.score,
-  }));
+  const top: LeaderboardEntry[] = await Promise.all(
+    sorted.slice(0, 10).map(async (e, i) => ({
+      rank: i + 1,
+      username: e.username,
+      score: e.score,
+      longestStreak: await getLongestStreakForUser(e.username),
+    }))
+  );
 
   const currentUserIndex = sorted.findIndex(
     (e) => e.username === currentUsername
@@ -66,6 +70,7 @@ export async function getLeaderboard(
         rank: currentUserIndex + 1,
         username: entry.username,
         score: entry.score,
+        longestStreak: await getLongestStreakForUser(entry.username),
       };
     }
   }

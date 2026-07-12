@@ -29,15 +29,29 @@ async function readStored(key: string): Promise<StoredStreak> {
     : { current: 0, longestStreak: 0, lastPlayedDate: null };
 }
 
+function isStreakBroken(lastPlayedDate: string | null): boolean {
+  if (!lastPlayedDate) return false;
+  const today = todayUTC();
+  const yesterday = yesterdayUTC();
+  return lastPlayedDate !== today && lastPlayedDate !== yesterday;
+}
 export async function getStreak(): Promise<StreakData> {
   const key = await getStreakKey();
   const stored = await readStored(key);
+  const broken = isStreakBroken(stored.lastPlayedDate);
 
   return {
-    current: stored.current,
+    current: broken ? 0 : stored.current,
     longestStreak: stored.longestStreak,
     hasPlayedToday: stored.lastPlayedDate === todayUTC(),
   };
+}
+
+export async function getLongestStreakForUser(
+  username: string
+): Promise<number> {
+  const stored = await readStored(`streak:${username}`);
+  return stored.longestStreak;
 }
 
 export async function recordRoundPlayed(): Promise<StreakData> {

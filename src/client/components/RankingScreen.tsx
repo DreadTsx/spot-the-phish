@@ -3,6 +3,7 @@ import { Flame } from 'lucide-react';
 import AppLayout from './AppLayout';
 import { useLeaderboard } from '../hooks/useLeaderboard';
 import type { Tab } from '../shared/types';
+import { getRankLabel } from '../utils/rank';
 
 type RankingScreenProps = {
   onNavigate: (tab: Tab) => void;
@@ -84,6 +85,11 @@ export default function RankingScreen({ onNavigate }: RankingScreenProps) {
                       className="text-safe"
                       fill="currentColor"
                     />
+                  )}
+                  {isTopThree && (
+                    <span className="text-[9px] font-mono text-safe border border-safe px-1.5 py-0.5 uppercase">
+                      {getRankLabel(entry.longestStreak)}
+                    </span>
                   )}
                 </div>
                 <span className="font-mono text-code-md text-safe">
