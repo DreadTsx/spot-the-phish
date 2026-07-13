@@ -7,6 +7,7 @@ type FlagRevealProps = {
   status: FlagStatus;
   explanation: string;
   block?: boolean;
+  revealDelay?: number;
   children: React.ReactNode;
 };
 
@@ -14,6 +15,7 @@ export default function FlagReveal({
   status,
   explanation,
   block = false,
+  revealDelay = 0,
   children,
 }: FlagRevealProps) {
   if (status === 'clear') {
@@ -45,7 +47,8 @@ export default function FlagReveal({
 
   return (
     <div
-      className={`${block ? 'w-full' : 'inline-block w-fit'} flex flex-col gap-1`}
+      className={`${block ? 'w-full' : 'inline-block w-fit'} flex flex-col gap-1 opacity-0 animate-fade-in-up`}
+      style={{ animationDelay: `${revealDelay}ms` }}
     >
       <div className={`border px-1 ${border} ${block ? 'w-full' : 'w-fit'}`}>
         {children}

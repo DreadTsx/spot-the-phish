@@ -1,9 +1,10 @@
 import AppLayout from './AppLayout';
 import FlagReveal from './FlagReveal';
 import { useStreak } from '../hooks/useStreak';
+import { useCountUp } from '../hooks/useCountUp';
+import { getPerformanceTier } from '../utils/performance';
 import type { RoundResult, FlagSegment, Tab } from '../shared/types';
 import PrimaryButton from './PrimaryButton';
-import { getPerformanceTier } from '../utils/performance';
 
 type ResultsScreenProps = {
   result: RoundResult;
@@ -28,21 +29,22 @@ export default function ResultsScreen({
   onNavigate,
 }: ResultsScreenProps) {
   const { scenario, tappedIds, correctFlagsFound, totalRedFlags } = result;
+  const { data: streak } = useStreak();
+
   const falsePositives = tappedIds.size - correctFlagsFound;
   const tier = getPerformanceTier(
     correctFlagsFound,
     totalRedFlags,
     falsePositives
   );
-
-  const { data: streak } = useStreak();
+  const displayedCorrect = useCountUp(correctFlagsFound, 700);
 
   return (
     <AppLayout activeTab="analyze" onNavigate={onNavigate}>
       {/* Hero score */}
       <section className="text-center pt-2 pb-2 animate-fade-in-up">
         <h1 className="text-headline-lg-mobile font-sans font-bold text-text mb-1">
-          {correctFlagsFound}/{totalRedFlags} Flags Found
+          {displayedCorrect}/{totalRedFlags} Flags Found
         </h1>
         <p className="text-label-sm font-mono text-safe uppercase tracking-widest">
           {TIER_LABELS[tier]}
@@ -59,7 +61,6 @@ export default function ResultsScreen({
         </span>
       </section>
 
-      {/* Annotated message recap */}
       <article
         className="bg-surface border border-border w-full flex flex-col text-code-md font-mono text-muted leading-relaxed animate-fade-in-up"
         style={{ animationDelay: '120ms' }}
@@ -75,6 +76,7 @@ export default function ResultsScreen({
                 tappedIds.has(scenario.sender.id)
               )}
               explanation={scenario.sender.explanation}
+              revealDelay={200}
             >
               <span className="text-text break-all">
                 {scenario.sender.text}
@@ -101,6 +103,7 @@ export default function ResultsScreen({
                 tappedIds.has(scenario.subject.id)
               )}
               explanation={scenario.subject.explanation}
+              revealDelay={400}
             >
               <span className="text-text font-bold uppercase tracking-tight">
                 {scenario.subject.text}
@@ -118,6 +121,7 @@ export default function ResultsScreen({
               tappedIds.has(scenario.bodyFlaggedLine.id)
             )}
             explanation={scenario.bodyFlaggedLine.explanation}
+            revealDelay={600}
             block
           >
             <span className="underline">{scenario.bodyFlaggedLine.text}</span>
@@ -134,6 +138,7 @@ export default function ResultsScreen({
               tappedIds.has(scenario.bodyLink.id)
             )}
             explanation={scenario.bodyLink.explanation}
+            revealDelay={800}
             block
           >
             <div className="p-3 bg-background break-all text-danger">
@@ -144,9 +149,10 @@ export default function ResultsScreen({
           <p className="mt-2">{scenario.bodyOutro}</p>
         </div>
       </article>
+
       <div
         className="flex flex-col gap-3 mt-6 animate-fade-in-up"
-        style={{ animationDelay: '180ms' }}
+        style={{ animationDelay: '1000ms' }}
       >
         <PrimaryButton
           label="View Leaderboard"

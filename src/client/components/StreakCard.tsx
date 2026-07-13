@@ -1,10 +1,13 @@
 import { Flame } from 'lucide-react';
+import { useCountUp } from '../hooks/useCountUp';
 
 type StreakCardProps = {
   streak: number;
 };
 
 export default function StreakCard({ streak }: StreakCardProps) {
+  const displayedStreak = useCountUp(streak, 500);
+
   return (
     <div className="relative bg-surface border border-border p-6 flex flex-col items-center justify-center overflow-hidden">
       <div
@@ -15,10 +18,15 @@ export default function StreakCard({ streak }: StreakCardProps) {
         }}
       />
 
-      <Flame className="text-danger mb-2 z-10" size={32} fill="currentColor" />
-
-      <div className="text-[80px] leading-none font-mono font-bold text-text tracking-tighter z-10">
-        {streak}
+      <div className="flex flex-col items-center animate-streak-pop z-10">
+        <Flame
+          className="text-danger mb-2 animate-flame-flicker"
+          size={32}
+          fill="currentColor"
+        />
+        <div className="text-[80px] leading-none font-mono font-bold text-text tracking-tighter">
+          {displayedStreak}
+        </div>
       </div>
 
       <div className="text-label-sm font-mono text-muted uppercase mt-4 tracking-widest z-10">

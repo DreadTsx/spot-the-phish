@@ -1,11 +1,14 @@
 import StreakCard from './StreakCard';
 import PrimaryButton from './PrimaryButton';
 import AppLayout from './AppLayout';
+import IntroScreen from './IntroScreen';
 import { useStreak } from '../hooks/useStreak';
 import { useTodayResult } from '../hooks/useTodayResult';
 import type { Tab, RoundResult } from '../shared/types';
 import type { ScenarioResponse, TodayRoundData } from '../../shared/api';
 import { getPerformanceTier } from '../utils/performance';
+import { useEffect, useState } from 'react';
+import { getHasSeenIntro, markIntroSeen } from '../state/introSeen';
 
 type HomeScreenProps = {
   onNavigate: (tab: Tab) => void;
@@ -59,6 +62,17 @@ export default function HomeScreen({
 }: HomeScreenProps) {
   const { data, isLoading, isError, retry } = useStreak();
   const { round } = useTodayResult(Boolean(data?.hasPlayedToday));
+  const [showFullIntro] = useState(() => !getHasSeenIntro());
+  const [introTimerDone, setIntroTimerDone] = useState(getHasSeenIntro());
+
+  useEffect(() => {
+    if (!showFullIntro) return;
+    const timer = setTimeout(() => {
+      setIntroTimerDone(true);
+      markIntroSeen();
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [showFullIntro]);
 
   const handleAnalyzeClick = async () => {
     if (data?.hasPlayedToday && round) {
@@ -83,12 +97,27 @@ export default function HomeScreen({
     onAnalyze();
   };
 
-  const status: ThreatStatus | null =
-    data?.hasPlayedToday && round ? getThreatStatus(round) : null;
+  if (showFullIntro && !introTimerDone) {
+    return (
+      <AppLayout activeTab="analyze" onNavigate={onNavigate}>
+        <IntroScreen />
+      </AppLayout>
+    );
+  }
 
-  return (
-    <AppLayout activeTab="analyze" onNavigate={onNavigate}>
-      {isError ? (
+  if (isLoading) {
+    return (
+      <AppLayout activeTab="analyze" onNavigate={onNavigate}>
+        <div className="text-label-sm font-mono text-muted uppercase">
+          Loading...
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (isError) {
+    return (
+      <AppLayout activeTab="analyze" onNavigate={onNavigate}>
         <div className="flex flex-col items-center gap-3">
           <span className="text-label-sm font-mono text-danger uppercase">
             Failed to connect
@@ -100,13 +129,18 @@ export default function HomeScreen({
             Retry
           </button>
         </div>
-      ) : isLoading || !data ? (
-        <div className="text-label-sm font-mono text-muted uppercase">
-          Loading...
-        </div>
-      ) : (
-        <StreakCard streak={data.current} />
-      )}
+      </AppLayout>
+    );
+  }
+
+  if (!data) return null;
+
+  const status: ThreatStatus | null =
+    data.hasPlayedToday && round ? getThreatStatus(round) : null;
+
+  return (
+    <AppLayout activeTab="analyze" onNavigate={onNavigate}>
+      <StreakCard streak={data.current} />
 
       <div className="flex flex-col gap-3 mt-8">
         <div className="flex justify-between items-center px-1">
@@ -131,11 +165,11 @@ export default function HomeScreen({
 
         <PrimaryButton
           label={
-            data?.hasPlayedToday
+            data.hasPlayedToday
               ? "View Today's Result"
               : "Analyze Today's Message"
           }
-          variant={data?.hasPlayedToday ? 'safe' : 'danger'}
+          variant={data.hasPlayedToday ? 'safe' : 'danger'}
           onclick={handleAnalyzeClick}
         />
       </div>
@@ -148,22 +182,6 @@ export default function HomeScreen({
           View Leaderboard
         </button>
       </div>
-
-      {/* <div
-        className="mt-auto pt-12 animate-fade-in-up"
-        style={{ animationDelay: '200ms' }}
-      >
-        <div className="border-t border-border pt-4">
-          <div className="text-label-sm font-mono text-muted opacity-50 flex flex-col gap-1">
-            <div>&gt; INITIALIZING SCANNER MODULE... [OK]</div>
-            <div>&gt; ESTABLISHING SECURE UPLINK... [OK]</div>
-            <div>&gt; AWAITING OPERATOR INPUT...</div>
-            <div className="flex">
-              <span className="w-2 h-4 bg-muted animate-pulse inline-block mt-0.5" />
-            </div>
-          </div>
-        </div>
-      </div> */}
     </AppLayout>
   );
 }
