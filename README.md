@@ -32,7 +32,6 @@ Each scenario is drawn from a rotating pool of realistic phishing/social-enginee
 - **Intel screen** — an in-app reference library of phishing red flags and definitions, so the game teaches as you play instead of just testing you.
 - **Profile screen** — total score, threats detected, false positives, and recent play history at a glance.
 - **Terminal/SOC visual aesthetic** — monospace type, glitch-text effects, danger-red accenting, and a command-line feel that matches the "cybersecurity analyst" fantasy.
-- **Moderator tools** — menu actions to create a new post, reset a single player's data, or wipe all player data (for testing/support).
 
 ---
 
