@@ -5,6 +5,7 @@ import { useCountUp } from '../hooks/useCountUp';
 import { getPerformanceTier } from '../utils/performance';
 import type { RoundResult, FlagSegment, Tab } from '../shared/types';
 import PrimaryButton from './PrimaryButton';
+import { showToast } from '@devvit/web/client';
 
 type ResultsScreenProps = {
   result: RoundResult;
@@ -38,6 +39,32 @@ export default function ResultsScreen({
     falsePositives
   );
   const displayedCorrect = useCountUp(correctFlagsFound, 700);
+
+  const handleShare = async () => {
+    const shareText =
+      `I caught ${correctFlagsFound}/${totalRedFlags} phishing red flags on Spot the Phish today! ${
+        streak ? `${streak.current}-day streak.` : ''
+      }`.trim();
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ text: shareText });
+        return;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          return;
+        }
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareText);
+      showToast('Result copied to clipboard!');
+    } catch (error) {
+      console.error('Failed to copy result:', error);
+      showToast('Could not copy your result — try again.');
+    }
+  };
 
   return (
     <AppLayout activeTab="analyze" onNavigate={onNavigate}>
@@ -163,7 +190,7 @@ export default function ResultsScreen({
           label="Share Result"
           variant="safe"
           onclick={() => {
-            //! wire real share functionality later
+            void handleShare();
           }}
         />
       </div>
